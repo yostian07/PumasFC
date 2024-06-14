@@ -21,7 +21,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:css": "tailwindcss -i ./public/styles/tailwind.css -o ./public/dist/styles.css --watch",
-     "build": "mkdir -p dist && cp -r docs/* dist/",
+      "build": "if not exist dist mkdir dist && xcopy /E /I docs dist",
     "start": "node app.js"
   },
   "keywords": [],
