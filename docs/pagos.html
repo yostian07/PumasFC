@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagos de Jugadores</title>
+    <link href="dist/styles.css" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-gray-950">
+    <header>
+        <div class="logo">
+            <img src="logo.png" alt="Logo" class="logo-img">
+            PumasFC
+        </div>
+        <input type="checkbox" id="nav_check" hidden>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="jugadores.html">Jugadores</a></li>
+                <li><a href="#" class="active">Pagos</a></li>
+                <li><a href="#">Reportes</a></li>
+                <li><a href="#" id="bgModeBtn">Modo Oscuro</a></li>
+            </ul>
+        </nav>
+        <label for="nav_check" class="hamburger">
+            <div></div>
+            <div></div>
+            <div></div>
+        </label>
+    </header>
+    <section class="ml-0 transition-all duration-200 ease-in-out" id="main-section">
+        <div id="main-content" class="bg-gray-950 flex-1 flex flex-col p-4 items-center">
+            <div class="container mx-auto p-4 flex-1">
+                <div class="mb-4 flex justify-between items-center">
+                    <input id="search" type="text" placeholder="Buscar pagos por nombre o cédula..." class="p-2 border border-gray-300 rounded w-8/12">
+                    <input id="month" type="month" class="p-2 border border-gray-300 rounded w-3/12" value="2024-06">
+                </div>
+                <div class="table-wrapper bg-white shadow-md rounded-lg border border-gray-300 overflow-x-auto">
+                    <table class="min-w-full bg-white text-xs md:text-sm w-full mx-auto">
+                        <thead>
+                            <tr>
+                                <th class="py-2 px-2 md:px-4 border-b">Nombre</th>
+                                <th class="py-2 px-2 md:px-4 border-b">Cédula</th>
+                                <th class="py-2 px-2 md:px-4 border-b">Fecha de Pago</th>
+                                <th class="py-2 px-2 md:px-4 border-b">Monto</th>
+                                <th class="py-2 px-2 md:px-4 border-b">Comentario</th>
+                                <th class="py-2 px-2 md:px-4 border-b">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentsTable" class="divide-y divide-gray-200">
+                            <!-- Pagos serán insertados aquí -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4 flex justify-end w-full">
+                    <button id="exportCsvBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full md:w-auto">Exportar a CSV</button>
+                </div>
+            </div>
+            <footer class="bg-gray-800 text-white p-4 text-center text-xs md:text-sm">
+                © 2024 ExtremeTech. Todos los derechos reservados.
+            </footer>
+        </div>
+    </section>
+
+    <div id="editPaymentModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="bg-white p-4">
+                <h2 class="text-xl font-bold mb-4">Editar Pago</h2>
+                <form id="editPaymentForm">
+                    <input type="hidden" id="editPaymentId">
+                    <div class="mb-4">
+                        <label for="editPlayerCedula" class="block text-gray-700">Cédula</label>
+                        <input id="editPlayerCedula" type="text" class="p-2 border border-gray-300 rounded w-full text-xs md:text-sm" disabled>
+                    </div>
+                    <div class="mb-4">
+                        <label for="editPaymentDate" class="block text-gray-700">Fecha de Pago</label>
+                        <input id="editPaymentDate" type="date" class="p-2 border border-gray-300 rounded w-full text-xs md:text-sm">
+                    </div>
+                    <div class="mb-4">
+                        <label for="editAmount" class="block text-gray-700">Monto</label>
+                        <input id="editAmount" type="number" class="p-2 border border-gray-300 rounded w-full text-xs md:text-sm">
+                    </div>
+                    <div class="mb-4">
+                        <label for="editComment" class="block text-gray-700">Comentario</label>
+                        <input id="editComment" type="text" class="p-2 border border-gray-300 rounded w-full text-xs md:text-sm">
+                    </div>
+                    <div class="mb-4 flex justify-end">
+                        <button type="button" id="closeEditPaymentModal" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2 text-xs md:text-sm">Cancelar</button>
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentsTable = document.getElementById('paymentsTable');
+    const editPaymentForm = document.getElementById('editPaymentForm');
+    const editPaymentModal = document.getElementById('editPaymentModal');
+    const closeEditPaymentModalBtn = document.getElementById('closeEditPaymentModal');
+    const searchInput = document.getElementById('search');
+    const monthInput = document.getElementById('month');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+    const body = document.querySelector('body');
+    const bgModeBtn = document.getElementById('bgModeBtn');
+
+    // Toggle dark mode
+    bgModeBtn.onclick = function() {
+        body.classList.toggle("dark-mode");
+    }
+
+    // Fetch and display payments
+    async function fetchPayments(query = '', month = '') {
+        try {
+            const response = await fetch(`/pagos?q=${query}&month=${month}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const payments = await response.json();
+            paymentsTable.innerHTML = '';
+            payments.forEach(payment => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="py-2 px-2 md:px-4 border-b">${payment.nombre}</td>
+                    <td class="py-2 px-2 md:px-4 border-b">${payment.cedula}</td>
+                    <td class="py-2 px-2 md:px-4 border-b">${payment.fecha_pago.split('T')[0]}</td>
+                    <td class="py-2 px-2 md:px-4 border-b">${payment.monto.toLocaleString('es-CR', { style: 'currency', currency: 'CRC' })}</td>
+                    <td class="py-2 px-2 md:px-4 border-b">${payment.comentario}</td>
+                    <td class="py-2 px-2 md:px-4 border-b">
+                        <button class="edit-btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded" data-id="${payment.id}">Editar</button>
+                    </td>
+                `;
+                paymentsTable.appendChild(row);
+            });
+
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', handleEditButtonClick);
+            });
+        } catch (error) {
+            console.error('Error al cargar pagos:', error);
+        }
+    }
+
+    // Handle edit button click
+    function handleEditButtonClick(event) {
+        const paymentId = event.target.getAttribute('data-id');
+        if (!paymentId) {
+            console.error('Payment ID is null or undefined');
+            Swal.fire('Error', 'ID de pago no válido', 'error');
+            return;
+        }
+        
+        fetch(`/pagos/${paymentId}`)
+            .then(response => response.json())
+            .then(payment => {
+                if (!payment.id) {
+                    throw new Error('Payment data is invalid');
+                }
+                
+                document.getElementById('editPaymentId').value = payment.id;
+                document.getElementById('editPlayerCedula').value = payment.cedula_jugador;
+                document.getElementById('editPaymentDate').value = payment.fecha_pago.split('T')[0];
+                document.getElementById('editAmount').value = payment.monto;
+                document.getElementById('editComment').value = payment.comentario;
+
+                editPaymentModal.classList.remove('hidden');
+                editPaymentModal.classList.add('show');
+            })
+            .catch(error => {
+                console.error('Fetch payment data failed:', error);
+                Swal.fire('Error', 'Hubo un problema al cargar los datos del pago.', 'error');
+            });
+    }
+
+    // Event listener to close the edit payment modal
+    closeEditPaymentModalBtn.addEventListener('click', () => {
+        editPaymentModal.classList.remove('show');
+        editPaymentModal.classList.add('hidden');
+    });
+
+    // Search payments
+    searchInput.addEventListener('input', () => {
+        fetchPayments(searchInput.value, monthInput.value);
+    });
+
+    // Filter payments by month
+    monthInput.addEventListener('change', () => {
+        fetchPayments(searchInput.value, monthInput.value);
+    });
+// Export to CSV
+exportCsvBtn.addEventListener('click', () => {
+        const selectedMonth = monthInput.value || new Date().toISOString().slice(0, 7); // Use selected month or current month if not selected
+        exportTableToCSV(`pagos_${selectedMonth}.csv`);
+    });
+
+    function exportTableToCSV(filename) {
+        var csv = [];
+        var rows = document.querySelectorAll("table tr");
+
+        // Get headers
+        var headers = Array.from(rows[0].querySelectorAll("th"))
+                            .map(header => header.innerText)
+                            .filter(header => header !== 'Acciones'); // Exclude the 'Acciones' column
+        csv.push(headers.join(","));
+
+        // Get rows
+        for (var i = 1; i < rows.length; i++) {
+            var row = [];
+            var cols = rows[i].querySelectorAll("td");
+            for (var j = 0; j < cols.length - 1; j++) { // Exclude the last column
+                row.push(cols[j].innerText);
+            }
+            csv.push(row.join(","));
+        }
+
+        // Download CSV
+        downloadCSV(csv.join("\n"), filename);
+    }
+
+    function downloadCSV(csv, filename) {
+        var csvFile;
+        var downloadLink;
+
+        csvFile = new Blob([csv], { type: "text/csv" });
+
+        downloadLink = document.createElement("a");
+
+        downloadLink.download = filename;
+
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+
+        downloadLink.style.display = "none";
+
+        document.body.appendChild(downloadLink);
+
+        downloadLink.click();
+    }
+    // Initial fetch
+    fetchPayments();
+});
+
+
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: rgb(226, 226, 233);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .logo-img {
+            height: 60px; /* Ajusta la altura según sea necesario */
+            width: 60px; /* Ajusta el ancho según sea necesario */
+            margin-right: 8px; /* Espacio entre el logo y el texto */
+        }
+
+        body.dark-mode {
+            background: rgb(27, 27, 34);
+        }
+
+        header {
+            background: #0a0097;
+            width: 100%;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 50px;
+        }
+
+        header .logo {
+            font-size: 30px;
+            text-transform: uppercase;
+        }
+
+        header nav ul {
+            display: flex;
+        }
+
+        header nav ul li a {
+            display: inline-block;
+            color: #000;
+            padding: 5px 0;
+            margin: 0 10px;
+            border: 3px solid transparent;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        header nav ul li a:hover,
+        header nav ul li a.active {
+            border-bottom-color: dodgerblue;
+        }
+
+        .hamburger {
+            cursor: pointer;
+            display: none;
+        }
+
+        .hamburger div {
+            width: 30px;
+            height: 3px;
+            margin: 5px 0;
+            background: #000;
+        }
+
+        @media only screen and (max-width: 900px) {
+            header {
+                padding: 0 30px;
+            }
+        }
+
+        @media only screen and (max-width: 700px) {
+            .hamburger {
+                display: block;
+            }
+
+            header nav {
+                position: absolute;
+                width: 100%;
+                left: -100%;
+                top: 70px;
+                background: #fff;
+                padding: 30px;
+                transition: 0.3s;
+            }
+
+            header #nav_check:checked ~ nav {
+                left: 0;
+            }
+
+            header nav ul {
+                display: block;
+            }
+
+            header nav ul li a {
+                margin: 5px 0;
+            }
+        }
+
+        .container {
+            padding: 28px;
+            max-height: calc(100vh - 150px); /* Limita la altura del contenedor y permite el scroll */
+            width: 109%; /* Ajusta el ancho del contenedor */
+            margin: 0; /* Centra el contenedor */
+        }
+
+        .container input,
+        .container form {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .container input {
+            font-size: 14px;
+            padding: 8px;
+        }
+
+        .container .table-wrapper {
+            max-height: 459px; /* Ajusta esta altura según tus necesidades */
+            overflow-y: auto;
+            overflow-x: auto; /* Habilita el scroll horizontal */
+            width: 100%;
+        }
+
+        .container table {
+            width: 100%; /* Asegúrate de que la tabla ocupe todo el ancho */
+            table-layout: fixed; /* Asegura que las columnas tengan un ancho fijo */
+        }
+
+        .container th,
+        .container td {
+            padding: 10px; /* Ajusta el padding según necesites */
+            text-align: left;
+            word-wrap: break-word; /* Permite que el contenido se ajuste dentro de la celda */
+        }
+
+        .container th.actions,
+        .container td.actions {
+            width: 150px; /* Ajusta el ancho de la columna de acciones */
+        }
+
+        .container button {
+            font-size: 14px; /* Ajusta el tamaño de la fuente según necesites */
+            padding: 5px;
+            margin: 5px 0; /* Espaciado entre botones */
+            display: block; /* Hace que los botones se dispongan en bloque */
+            width: 100%; /* Ajusta el ancho de los botones */
+        }
+
+        @media (max-width: 900px) {
+            .container th,
+            .container td {
+                padding: 5px; /* Más pequeño para móviles */
+                font-size: 8px;
+            }
+
+            .container button {
+                font-size: 12px; /* Más pequeño para móviles */
+                padding: 6px;
+            }
+        }
+
+        .bg-gray-950 {
+            background-color: #1F2937; /* Ajusta el color según tu necesidad */
+        }
+
+        header .logo {
+            font-size: 24px;
+        }
+
+        header nav ul {
+            display: flex;
+            flex-direction: column; /* Hace que los elementos del menú se apilen verticalmente */
+        }
+
+        header nav ul li {
+            margin-bottom: 10px;
+        }
+
+        header nav ul li a {
+            font-size: 18px;
+        }
+
+        #main-content {
+            width: 100%;
+        }
+
+        @media (max-width: 767px) {
+            header .logo {
+                font-size: 20px;
+            }
+
+            header nav ul {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            header nav ul li {
+                margin-bottom: 10px;
+            }
+
+            header nav ul li a {
+                font-size: 16px;
+            }
+
+            #main-content {
+                padding: 10px;
+            }
+
+            .container th,
+            .container td {
+                padding: 8px;
+            }
+
+            .container button {
+                font-size: 12px;
+                padding: 4px;
+            }
+        }
+
+        /* Estilos para el modal */
+        .modal {
+            position: fixed;
+            z-index: 10;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        /* Clases para mostrar el modal */
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+        .delete-btn {
+            display: inline-block; /* Asegúrate de que el botón se muestre como un elemento en línea */
+            margin-left: 8px; /* Añade un margen entre los botones */
+        }
+
+    </style>
+</body>
+</html>
