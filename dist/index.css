@@ -1,0 +1,282 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: rgb(226, 226, 233);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    font-family: 'Roboto', sans-serif;
+}
+
+.logo-img {
+    height: 60px; /* Ajusta la altura según sea necesario */
+    width: 60px; /* Ajusta el ancho según sea necesario */
+    margin-right: 8px; /* Espacio entre el logo y el texto */
+}
+
+
+body.dark-mode {
+    background: rgb(27, 27, 34);
+}
+
+header {
+    background: #0a0097;
+    width: 100%;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 50px;
+}
+
+header .logo {
+    font-size: 30px;
+    text-transform: uppercase;
+}
+
+header nav ul {
+    display: flex;
+}
+
+header nav ul li a {
+    display: inline-block;
+    color: #000;
+    padding: 5px 0;
+    margin: 0 10px;
+    border: 3px solid transparent;
+    text-transform: uppercase;
+    transition: 0.2s;
+}
+
+header nav ul li a:hover,
+header nav ul li a.active {
+    border-bottom-color: dodgerblue;
+}
+
+.hamburger {
+    cursor: pointer;
+    display: none;
+}
+
+.hamburger div {
+    width: 30px;
+    height: 3px;
+    margin: 5px 0;
+    background: #000;
+}
+
+@media only screen and (max-width: 900px) {
+    header {
+        padding: 0 30px;
+    }
+}
+
+@media only screen and (max-width: 700px) {
+    .hamburger {
+        display: block;
+    }
+
+    header nav {
+        position: absolute;
+        width: 100%;
+        left: -100%;
+        top: 70px;
+        background: #fff;
+        padding: 30px;
+        transition: 0.3s;
+    }
+
+    header #nav_check:checked ~ nav {
+        left: 0;
+    }
+
+    header nav ul {
+        display: block;
+    }
+
+    header nav ul li a {
+        margin: 5px 0;
+    }
+}
+
+.container {
+    padding: 20px;
+    max-height: calc(100vh - 150px); /* Limita la altura del contenedor y permite el scroll */
+    width: 105%; /* Ajusta el ancho del contenedor */
+    margin: 0 auto; /* Centra el contenedor */
+}
+
+.container input,
+.container form {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.container input {
+    font-size: 14px;
+    padding: 8px;
+}
+
+.container .table-wrapper {
+    max-height: 500px; /* Ajusta esta altura según tus necesidades */
+    overflow-y: auto;
+    width: 100%;
+}
+
+.container table {
+    width: 100%; /* Asegúrate de que la tabla ocupe todo el ancho */
+    table-layout: fixed; /* Asegura que las columnas tengan un ancho fijo */
+}
+
+.container th,
+.container td {
+    padding: 10px; /* Ajusta el padding según necesites */
+    text-align: left;
+    word-wrap: break-word; /* Permite que el contenido se ajuste dentro de la celda */
+}
+
+.container th.actions,
+.container td.actions {
+    width: 115px; /* Ajusta el ancho de la columna de acciones */
+}
+
+.container button {
+    font-size: 14px; /* Ajusta el tamaño de la fuente según necesites */
+    padding: 5px;
+    margin: 5px 0; /* Espaciado entre botones */
+    display: block; /* Hace que los botones se dispongan en bloque */
+    width: 85%; /* Ajusta el ancho de los botones */
+}
+
+@media (max-width: 900px) {
+    .container th,
+    .container td {
+        padding: 5px; /* Más pequeño para móviles */
+        font-size: 8px;
+    }
+
+    .container button {
+        font-size: 12px; /* Más pequeño para móviles */
+        padding: 6px;
+    }
+}
+
+.bg-gray-950 {
+    background-color: #1F2937; /* Ajusta el color según tu necesidad */
+}
+
+header .logo {
+    font-size: 24px;
+}
+
+header nav ul {
+    display: flex;
+    flex-direction: column; /* Hace que los elementos del menú se apilen verticalmente */
+}
+
+header nav ul li {
+    margin-bottom: 10px;
+}
+
+header nav ul li a {
+    font-size: 18px;
+}
+
+#main-content {
+    width: 100%;
+}
+
+@media (max-width: 767px) {
+    header .logo {
+        font-size: 20px;
+    }
+
+    header nav ul {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    header nav ul li {
+        margin-bottom: 10px;
+    }
+
+    header nav ul li a {
+        font-size: 16px;
+    }
+
+    #main-content {
+        padding: 10px;
+    }
+
+    .container th,
+    .container td {
+        padding: 8px;
+    }
+
+    .container button {
+        font-size: 12px;
+        padding: 4px;
+    }
+}
+
+/* Estilos para el modal */
+.modal {
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+/* Clases para mostrar el modal */
+.modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+.modal.show .modal-content {
+    transform: scale(1);
+}
+
+.payment-btn {
+    display: inline-block;
+    background-color: #38a169;
+    color: white;
+    padding: 6px 8px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 12px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.payment-btn:hover {
+    background-color: #2f855a;
+}
