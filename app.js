@@ -19,7 +19,7 @@ const pool = new Pool({
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, '/')));
-app.use(express.static('docs'));
+app.use(express.static('public'));
 app.use(bodyParser.json());
 
 
