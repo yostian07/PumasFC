@@ -5,16 +5,16 @@ const { Parser } = require('json2csv');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
-
+require('dotenv').config();
 const app = express();
 const port = 3000;
 
 const pool = new Pool({
-    user: 'Pumas',
-    host: 'localhost',
-    database: 'PumasDB',
-    password: '123456',
-    port: 5432,
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
 });
 
 app.use(cors());

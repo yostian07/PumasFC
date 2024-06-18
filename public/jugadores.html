@@ -1,72 +1,145 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
     <title>Jugadores</title>
-    <style>
-        /* Aquí puedes agregar tus estilos */
-
-        body {
-            font-family: Arial, sans-serif;
-        }
-        
-        h2 {
-            color: #333;
-            text-align: center;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-        
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-    </style>
 </head>
-<body>
-    <h2>Lista de Jugadores</h2>
-    <table id="playersTable">
-        <tr>
-            <th>Nombre</th>
-            <th>Cédula</th>
-            <th>Categoría</th>
-            <th>Encargado</th>
-        </tr>
-        <!-- Los jugadores se cargarán aquí -->
-    </table>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+    <div class="container mx-auto px-4 sm:px-8">
+        <h2 class="py-8 text-2xl font-semibold text-gray-900">Lista de Jugadores</h2>
+        <div class="py-4">
+            <input type="text" id="searchInput" placeholder="Buscar por cédula o nombre" class="form-control shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <div class="my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                    <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                        <table id="playersTable" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cédula</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Encargado</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Los jugadores se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- Botón para abrir el modal -->
+            <button type="button" class="mt-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" data-toggle="modal" data-target="#addPlayerModal" id="addPlayerButton">
+                Añadir jugador
+            </button>
+        </div>
+    </div>
+  <!-- Modal -->
+  <!-- Modal -->
+<!-- Modal -->
+<div class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Añadir Jugador</h3>
+                <div class="mt-2">
+                    <input type="text" id="nombre" name="nombre" placeholder="Nombre" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                    <input type="text" id="cedula" name="cedula" placeholder="Cédula" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                    <input type="text" id="categoria" name="categoria" placeholder="Categoría" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                    <input type="text" id="encargado" name="encargado" placeholder="Encargado" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" id="submitButton" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    Enviar
+                </button>
+                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+  <script>
+   document.addEventListener('DOMContentLoaded', (event) => {
+    const playersTable = document.getElementById('playersTable');
+    const searchInput = document.getElementById('searchInput');
+    const addPlayerButton = document.getElementById('addPlayerButton');
+    const submitButton = document.getElementById('submitButton');
+    const modal = document.querySelector('.modal');
+    const cancelButton = document.querySelector('.cancel-button');
+    let players = [];
 
-   
-    <script>
-        // Aquí puedes agregar tu código JavaScript
-        const playersTable = document.getElementById('playersTable');
+    fetch('http://localhost:3000/jugadores')
+        .then(response => response.json())
+        .then(data => {
+            players = data;
+            displayPlayers(players);
+        });
 
-        fetch('http://localhost:8000/api/jugadores')
-            .then(response => response.json())
-            .then(data => {
-                data.forEach(player => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${player.nombre}</td>
-                        <td>${player.cedula}</td>
-                        <td>${player.categoria}</td>
-                        <td>${player.encargado}</td>
-                    `;
-                    playersTable.appendChild(row);
-                });
-            });
-    </script>
+    searchInput.addEventListener('input', () => {
+        const searchTerm = searchInput.value.toLowerCase();
+        const filteredPlayers = players.filter(player =>
+            player.nombre.toLowerCase().includes(searchTerm) ||
+            player.cedula.toLowerCase().includes(searchTerm)
+        );
+        displayPlayers(filteredPlayers);
+    });
+
+    addPlayerButton.addEventListener('click', () => {
+        modal.style.display = 'block';
+    });
+
+    cancelButton.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    submitButton.addEventListener('click', () => {
+        const nombre = document.getElementById('nombre').value;
+        const cedula = document.getElementById('cedula').value;
+        const categoria = document.getElementById('categoria').value;
+        const encargado = document.getElementById('encargado').value;
+
+        const newPlayer = { nombre, cedula, categoria, encargado };
+
+        fetch('http://localhost:3000/jugadores', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newPlayer),
+        })
+        .then(response => response.json())
+        .then(data => {
+            players.push(data);
+            displayPlayers(players);
+            modal.style.display = 'none';
+        });
+    });
+
+    function displayPlayers(players) {
+        playersTable.innerHTML = `
+            <tr>
+                <th>Nombre</th>
+                <th>Cédula</th>
+                <th>Categoría</th>
+                <th>Encargado</th>
+            </tr>
+        `;
+        players.forEach(player => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${player.nombre}</td>
+                <td>${player.cedula}</td>
+                <td>${player.categoria}</td>
+                <td>${player.encargado}</td>
+            `;
+            playersTable.appendChild(row);
+        });
+    }
+});
+</script>
 </body>
 </html>
