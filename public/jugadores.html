@@ -48,37 +48,25 @@
         <!-- Los jugadores se cargarán aquí -->
     </table>
 
+   
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
+        // Aquí puedes agregar tu código JavaScript
         const playersTable = document.getElementById('playersTable');
 
-        // Fetch and display players
-        async function fetchPlayers() {
-            try {
-                const response = await fetch(`/jugadores`);
-                const players = await response.json();
-
-                // Clear the table
-                while (playersTable.rows.length > 1) {
-                    playersTable.deleteRow(1);
-                }
-
-                // Add the players to the table
-                for (const player of players) {
-                    const row = playersTable.insertRow();
-                    row.insertCell().textContent = player.nombre;
-                    row.insertCell().textContent = player.cedula;
-                    row.insertCell().textContent = player.categoria;
-                    row.insertCell().textContent = player.encargado;
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        // Fetch the players when the page loads
-        fetchPlayers();
-    });
+        fetch('http://localhost:8000/api/jugadores')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(player => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${player.nombre}</td>
+                        <td>${player.cedula}</td>
+                        <td>${player.categoria}</td>
+                        <td>${player.encargado}</td>
+                    `;
+                    playersTable.appendChild(row);
+                });
+            });
     </script>
 </body>
 </html>
